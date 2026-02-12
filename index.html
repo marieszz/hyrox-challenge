@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyrox Challenge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Arial', sans-serif;
+            background: #FFFFFF;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background: #000000;
+            padding: 60px 40px;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #FFED00;
+            font-size: 2.5em;
+            margin-bottom: 50px;
+            line-height: 1.4;
+            font-weight: 400;
+            text-transform: uppercase;
+        }
+
+        .buttons-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+            min-height: 200px;
+            align-items: center;
+        }
+
+        button {
+            padding: 20px 50px;
+            font-size: 1.3em;
+            font-weight: 700;
+            font-family: 'Inter', 'Arial', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #yesBtn {
+            background: #FFED00;
+            color: #000000;
+            border: none;
+        }
+
+        #yesBtn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 237, 0, 0.6);
+        }
+
+        #noBtn {
+            background: #000000;
+            color: #FFED00;
+            border: 3px solid #FFED00;
+            position: absolute;
+        }
+
+        #noBtn:hover {
+            transform: scale(1.05);
+        }
+
+        .wizz-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .wizz-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wizz-emoji {
+            font-size: 1em;
+        }
+
+        .wizz-text {
+            font-size: 3em;
+            color: #FFED00;
+            font-weight: 900;
+            opacity: 0;
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .funny-phrase {
+            position: fixed;
+            color: #FFED00;
+            font-size: 1.5em;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 999;
+            animation: fadeOut 2s ease-out forwards;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            white-space: nowrap;
+        }
+
+        @keyframes fistGrow {
+            0% {
+                font-size: 1em;
+                opacity: 0;
+            }
+            80% {
+                font-size: 25em;
+                opacity: 1;
+            }
+            100% {
+                font-size: 28em;
+                opacity: 1;
+            }
+        }
+
+        @keyframes explosion {
+            0% {
+                font-size: 28em;
+                opacity: 1;
+                filter: brightness(1);
+            }
+            30% {
+                font-size: 32em;
+                opacity: 1;
+                filter: brightness(2);
+            }
+            70% {
+                font-size: 35em;
+                opacity: 0.8;
+                filter: brightness(1.5);
+            }
+            100% {
+                font-size: 38em;
+                opacity: 0;
+                filter: brightness(1);
+            }
+        }
+
+        @keyframes flameAppear {
+            0% {
+                font-size: 1em;
+                opacity: 0;
+            }
+            100% {
+                font-size: 15em;
+                opacity: 1;
+            }
+        }
+
+        @keyframes flameFlicker {
+            0%, 100% {
+                transform: scale(1) rotate(-5deg);
+                filter: brightness(1);
+            }
+            25% {
+                transform: scale(1.1) rotate(5deg);
+                filter: brightness(1.2);
+            }
+            50% {
+                transform: scale(0.95) rotate(-3deg);
+                filter: brightness(0.9);
+            }
+            75% {
+                transform: scale(1.05) rotate(3deg);
+                filter: brightness(1.1);
+            }
+        }
+
+        @keyframes textAppear {
+            0% {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            button {
+                padding: 15px 35px;
+                font-size: 1.1em;
+            }
+
+            .funny-phrase {
+                font-size: 1em;
+            }
+
+            .wizz-text {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Do you want to do a Hyrox race with me?</h1>
+        <div class="buttons-container">
+            <button id="yesBtn">Yes!!!</button>
+            <button id="noBtn">No</button>
+        </div>
+    </div>
+
+    <div class="wizz-overlay" id="wizzOverlay">
+        <div class="wizz-content">
+            <div class="wizz-emoji" id="wizzEmoji">👊</div>
+            <div class="wizz-text" id="wizzText">LET'S GO!!!<br>Time to crush this Hyrox! 💪</div>
+        </div>
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const wizzOverlay = document.getElementById('wizzOverlay');
+        const wizzEmoji = document.getElementById('wizzEmoji');
+        const wizzText = document.getElementById('wizzText');
+        const container = document.querySelector('.buttons-container');
+
+        const funnyPhrases = [
+            "We will get a matchy outfit!",
+            "I promise I'll do more burpees than you",
+            "Think of the post-race brunch!",
+            "We'll look so cool in matching gear",
+            "I'll carry the sled for you... maybe",
+            "The Instagram photos will be 🔥",
+            "You know you want to!",
+            "Come on, it'll be fun!",
+            "I'll buy the first round after",
+            "We can suffer together!",
+            "You're stronger than you think!",
+            "Please please please! 🙏"
+        ];
+
+        let phraseIndex = 0;
+
+        // Position No button initially next to Yes button
+        function positionNoButton() {
+            const yesRect = yesBtn.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            const noWidth = noBtn.offsetWidth;
+            
+            // Position to the right of Yes button with gap
+            const leftPosition = yesRect.right - containerRect.left + 30;
+            
+            noBtn.style.left = leftPosition + 'px';
+            noBtn.style.top = '50%';
+            noBtn.style.transform = 'translateY(-50%)';
+        }
+
+        // Initialize position
+        window.addEventListener('load', positionNoButton);
+        window.addEventListener('resize', positionNoButton);
+
+        // Get random position within the container
+        function getRandomPosition() {
+            const containerRect = container.getBoundingClientRect();
+            const btnWidth = noBtn.offsetWidth;
+            const btnHeight = noBtn.offsetHeight;
+            
+            const maxX = containerRect.width - btnWidth;
+            const maxY = containerRect.height - btnHeight;
+            
+            const randomX = Math.random() * maxX;
+            const randomY = Math.random() * maxY;
+            
+            return { x: randomX, y: randomY };
+        }
+
+        // Get random position on screen for phrase
+        function getRandomPhrasePosition() {
+            const margin = 100;
+            const randomX = margin + Math.random() * (window.innerWidth - 2 * margin);
+            const randomY = margin + Math.random() * (window.innerHeight - 2 * margin);
+            
+            return { x: randomX, y: randomY };
+        }
+
+        // Show funny phrase at random position
+        function showFunnyPhrase() {
+            const pos = getRandomPhrasePosition();
+            const phrase = document.createElement('div');
+            phrase.className = 'funny-phrase';
+            phrase.textContent = funnyPhrases[phraseIndex % funnyPhrases.length];
+            phrase.style.left = pos.x + 'px';
+            phrase.style.top = pos.y + 'px';
+            document.body.appendChild(phrase);
+            
+            phraseIndex++;
+            
+            setTimeout(() => {
+                phrase.remove();
+            }, 2000);
+        }
+
+        // Move the No button when mouse gets near it
+        noBtn.addEventListener('mouseenter', () => {
+            const pos = getRandomPosition();
+            noBtn.style.left = pos.x + 'px';
+            noBtn.style.top = pos.y + 'px';
+            noBtn.style.transform = 'none';
+            
+            showFunnyPhrase();
+        });
+
+        // Also move on touch devices
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const pos = getRandomPosition();
+            noBtn.style.left = pos.x + 'px';
+            noBtn.style.top = pos.y + 'px';
+            noBtn.style.transform = 'none';
+            
+            showFunnyPhrase();
+        });
+
+        // MSN Wizz-style animation
+        function playWizzAnimation() {
+            wizzOverlay.style.display = 'flex';
+            wizzEmoji.textContent = '👊';
+            wizzEmoji.style.animation = 'none';
+            wizzText.style.animation = 'none';
+            wizzText.style.opacity = '0';
+            
+            // Reset
+            setTimeout(() => {
+                // Step 1: Fist grows (faster)
+                wizzEmoji.style.animation = 'fistGrow 0.7s ease-out forwards';
+                
+                // Step 2: Explosion (clearer and brighter)
+                setTimeout(() => {
+                    wizzEmoji.textContent = '💥';
+                    wizzEmoji.style.animation = 'explosion 0.6s ease-out forwards';
+                    
+                    // Step 3: Flame appears and flickers
+                    setTimeout(() => {
+                        wizzEmoji.textContent = '🔥';
+                        wizzEmoji.style.animation = 'flameAppear 0.5s ease-out forwards, flameFlicker 0.5s ease-in-out infinite 0.5s';
+                        
+                        // Step 4: Text appears below
+                        setTimeout(() => {
+                            wizzText.style.animation = 'textAppear 0.5s ease-out forwards';
+                        }, 800);
+                    }, 600);
+                }, 700);
+            }, 50);
+        }
+
+        // Show Wizz animation when Yes is clicked
+        yesBtn.addEventListener('click', () => {
+            playWizzAnimation();
+        });
+
+        // Close overlay on click
+        wizzOverlay.addEventListener('click', () => {
+            wizzOverlay.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
