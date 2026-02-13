@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyrox Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #000000;
+            color: #FFED00;
+            min-height: 100vh;
+            padding: 20px;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .home-page, .challenge-page {
+            display: none;
+        }
+
+        .home-page.active, .challenge-page.active {
+            display: block;
+        }
+
+        /* Home Page Styles */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+            text-transform: uppercase;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 600;
+            background: #000000;
+            color: #FFED00;
+            border: 1px solid #FFED00;
+            border-radius: 0;
+        }
+
+        input::placeholder {
+            color: #FFED00;
+            opacity: 0.5;
+        }
+
+        button {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: 600;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            cursor: pointer;
+            border-radius: 0;
+            text-transform: uppercase;
+            margin-top: 30px;
+        }
+
+        .btn-primary {
+            background: #FFED00;
+            color: #000000;
+            border: 1px solid #FFED00;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        /* Challenge Page Styles */
+        .timer-display {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #FFED00;
+        }
+
+        .penalty-board {
+            border: 1px solid #FFED00;
+            padding: 20px;
+            margin-bottom: 30px;
+            min-height: 150px;
+        }
+
+        .penalty-board h3 {
+            color: #FFFFFF;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            text-transform: uppercase;
+        }
+
+        .penalty-item {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .penalty-total {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #FFED00;
+            font-size: 1.1em;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .challenge-message {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 40px 0;
+            line-height: 1.6;
+        }
+
+        .buttons-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+            min-height: 200px;
+            align-items: center;
+        }
+
+        .btn-yes {
+            background: #FFED00;
+            color: #000000;
+            border: 1px solid #FFED00;
+            padding: 20px 50px;
+            font-size: 1.3em;
+        }
+
+        .btn-no {
+            background: #000000;
+            color: #FFED00;
+            border: 1px solid #FFED00;
+            padding: 20px 50px;
+            font-size: 1.3em;
+            position: absolute;
+        }
+
+        .funny-message {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+            min-height: 40px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .completion-page {
+            display: none;
+            text-align: center;
+        }
+
+        .completion-page.active {
+            display: block;
+        }
+
+        .completion-message {
+            font-size: 2em;
+            margin: 40px 0;
+            line-height: 1.6;
+        }
+
+        .share-link {
+            background: #000000;
+            border: 1px solid #FFED00;
+            padding: 15px;
+            margin: 30px 0;
+            word-break: break-all;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .challenge-message {
+                font-size: 1.2em;
+            }
+
+            .btn-yes, .btn-no {
+                padding: 15px 35px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HOME PAGE -->
+    <div class="home-page active">
+        <div class="container">
+            <h1>Challenge your Hyrox partner! 💪</h1>
+            
+            <form id="challengeForm">
+                <div class="form-group">
+                    <label for="recipient">Recipient Name</label>
+                    <input type="text" id="recipient" required placeholder="Enter recipient name">
+                </div>
+
+                <div class="form-group">
+                    <label for="sender">Your Name</label>
+                    <input type="text" id="sender" required placeholder="Enter your name">
+                </div>
+
+                <div class="form-group">
+                    <label for="age">Your partner age (optional)</label>
+                    <input type="number" id="age" placeholder="Enter age">
+                </div>
+
+                <div class="form-group">
+                    <label for="exercise">Choose your exercise</label>
+                    <select id="exercise" required>
+                        <option value="burpees">Burpees</option>
+                        <option value="push-ups">Push-ups</option>
+                        <option value="squats">Squats</option>
+                        <option value="plank">Plank</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary">Send Challenge!</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CHALLENGE PAGE -->
+    <div class="challenge-page">
+        <div class="container">
+            <div class="timer-display" id="hyroxTimer">
+                HYROX TIME: 00:50:00
+            </div>
+
+            <div class="penalty-board">
+                <h3>PENALTY BOARD</h3>
+                <div id="penaltyList"></div>
+                <div class="penalty-total" id="penaltyTotal">
+                    TOTAL: 0 <span id="exerciseUnit">REPS</span>
+                </div>
+            </div>
+
+            <div class="challenge-message" id="challengeText">
+                Hey [NAME]!<br>
+                Your partner [SENDER] is sending you a [EXERCISE] challenge 💪<br>
+                Are you ready to do it?
+            </div>
+
+            <div class="buttons-container">
+                <button class="btn-yes" id="yesBtn">YES LET'S GO!</button>
+                <button class="btn-no" id="noBtn">NAH THANKS</button>
+            </div>
+
+            <div class="funny-message" id="funnyMessage"></div>
+        </div>
+    </div>
+
+    <!-- COMPLETION PAGE -->
+    <div class="completion-page">
+        <div class="container">
+            <div class="completion-message" id="completionText">
+                CONGRATS! You made the right choice.<br>
+                You're going to do [TOTAL] of [EXERCISE] today!
+            </div>
+
+            <div class="share-link" id="shareLink"></div>
+
+            <button class="btn-primary" id="challengeBackBtn">
+                Send a challenge to your partner
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let challengeData = {
+            recipient: '',
+            sender: '',
+            age: 0,
+            exercise: 'burpees'
+        };
+
+        let timerInterval;
+        let penaltyInterval;
+        let hyroxSeconds = 50 * 60; // Start at 50 minutes
+        let elapsedSeconds = 0;
+        let totalReps = 0;
+        let penalties = [];
+        let messageTimeout;
+
+        const funnyMessages = [
+            "Come on! You know you want to",
+            "Don't let [SENDER] down!",
+            "Yes is the only option",
+            "Your Hyrox stats are waiting!",
+            "The more you wait, the harder the challenge will be"
+        ];
+
+        // Exercise configurations
+        const exerciseConfig = {
+            'burpees': { increment: 1, unit: 'reps' },
+            'push-ups': { increment: 1, unit: 'reps' },
+            'squats': { increment: 5, unit: 'reps' },
+            'plank': { increment: 10, unit: 'sec' }
+        };
+
+        // Check URL parameters on load
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (urlParams.has('recipient')) {
+                // Load challenge page
+                challengeData.recipient = urlParams.get('recipient');
+                challengeData.sender = urlParams.get('sender');
+                challengeData.age = parseInt(urlParams.get('age')) || 0;
+                challengeData.exercise = urlParams.get('exercise');
+                
+                loadChallengePage();
+            }
+        });
+
+        // Form submission
+        document.getElementById('challengeForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            challengeData.recipient = document.getElementById('recipient').value;
+            challengeData.sender = document.getElementById('sender').value;
+            challengeData.age = parseInt(document.getElementById('age').value) || 0;
+            challengeData.exercise = document.getElementById('exercise').value;
+            
+            const url = new URL(window.location.href.split('?')[0]);
+            url.searchParams.set('recipient', challengeData.recipient);
+            url.searchParams.set('sender', challengeData.sender);
+            url.searchParams.set('age', challengeData.age);
+            url.searchParams.set('exercise', challengeData.exercise);
+            
+            window.location.href = url.toString();
+        });
+
+        function loadChallengePage() {
+            document.querySelector('.home-page').classList.remove('active');
+            document.querySelector('.challenge-page').classList.add('active');
+            
+            // Update challenge text
+            const text = `Hey ${challengeData.recipient}!<br>Your partner ${challengeData.sender} is sending you a ${challengeData.exercise} challenge 💪<br>Are you ready to do it?`;
+            document.getElementById('challengeText').innerHTML = text;
+            
+            // Update exercise unit
+            const unit = exerciseConfig[challengeData.exercise].unit;
+            document.getElementById('exerciseUnit').textContent = unit.toUpperCase();
+            
+            // Position No button initially
+            positionNoButton();
+            
+            // Start timers
+            startTimers();
+        }
+
+        function positionNoButton() {
+            const yesBtn = document.getElementById('yesBtn');
+            const noBtn = document.getElementById('noBtn');
+            const container = document.querySelector('.buttons-container');
+            
+            const yesRect = yesBtn.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            
+            const leftPosition = yesRect.right - containerRect.left + 30;
+            
+            noBtn.style.left = leftPosition + 'px';
+            noBtn.style.top = '50%';
+            noBtn.style.transform = 'translateY(-50%)';
+        }
+
+        function startTimers() {
+            // Increment reps every second
+            timerInterval = setInterval(() => {
+                elapsedSeconds++;
+                const increment = exerciseConfig[challengeData.exercise].increment;
+                totalReps += increment;
+                updatePenaltyTotal();
+                
+                // Hyrox time increases by 3 minutes per second
+                hyroxSeconds += 180;
+                updateHyroxTimer();
+            }, 1000);
+
+            // Add penalties every 5 seconds
+            penaltyInterval = setInterval(() => {
+                addRandomPenalty();
+            }, 5000);
+        }
+
+        function updateHyroxTimer() {
+            const hours = Math.floor(hyroxSeconds / 3600);
+            const minutes = Math.floor((hyroxSeconds % 3600) / 60);
+            const seconds = hyroxSeconds % 60;
+            
+            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('hyroxTimer').textContent = `HYROX TIME: ${timeString}`;
+        }
+
+        function addRandomPenalty() {
+            const penaltyTypes = [
+                { type: 'time', value: 10, text: '+10 sec time' },
+                { type: 'time', value: 15, text: '+15 sec time' },
+                { type: 'reps', value: 10, text: `+10 ${challengeData.exercise}` },
+                { type: 'reps', value: 15, text: `+15 ${challengeData.exercise}` }
+            ];
+
+            // Add age bonus if age is provided
+            if (challengeData.age > 0) {
+                penaltyTypes.push({
+                    type: 'reps',
+                    value: challengeData.age,
+                    text: `+${challengeData.age} ${challengeData.exercise} (age bonus)`
+                });
+            }
+
+            const penalty = penaltyTypes[Math.floor(Math.random() * penaltyTypes.length)];
+            penalties.push(penalty);
+
+            // Keep only last 5 penalties
+            if (penalties.length > 5) {
+                penalties.shift();
+            }
+
+            if (penalty.type === 'time') {
+                hyroxSeconds += penalty.value;
+            } else {
+                totalReps += penalty.value;
+            }
+
+            updatePenaltyBoard();
+        }
+
+        function updatePenaltyBoard() {
+            const penaltyList = document.getElementById('penaltyList');
+            penaltyList.innerHTML = penalties.map(p => 
+                `<div class="penalty-item">${p.text}</div>`
+            ).join('');
+            
+            updatePenaltyTotal();
+        }
+
+        function updatePenaltyTotal() {
+            const unit = exerciseConfig[challengeData.exercise].unit;
+            document.getElementById('penaltyTotal').innerHTML = 
+                `TOTAL: ${totalReps} <span id="exerciseUnit">${unit.toUpperCase()}</span>`;
+        }
+
+        // No button movement
+        const noBtn = document.getElementById('noBtn');
+        const container = document.querySelector('.buttons-container');
+
+        function getRandomPosition() {
+            const containerRect = container.getBoundingClientRect();
+            const btnWidth = noBtn.offsetWidth;
+            const btnHeight = noBtn.offsetHeight;
+            
+            const maxX = containerRect.width - btnWidth;
+            const maxY = containerRect.height - btnHeight;
+            
+            const randomX = Math.random() * maxX;
+            const randomY = Math.random() * maxY;
+            
+            return { x: randomX, y: randomY };
+        }
+
+        function showFunnyMessage() {
+            const message = funnyMessages[Math.floor(Math.random() * funnyMessages.length)]
+                .replace('[SENDER]', challengeData.sender);
+            
+            const messageEl = document.getElementById('funnyMessage');
+            messageEl.textContent = message;
+            
+            clearTimeout(messageTimeout);
+            messageTimeout = setTimeout(() => {
+                messageEl.textContent = '';
+            }, 3000);
+        }
+
+        noBtn.addEventListener('mouseenter', () => {
+            const pos = getRandomPosition();
+            noBtn.style.transition = 'none';
+            noBtn.style.left = pos.x + 'px';
+            noBtn.style.top = pos.y + 'px';
+            noBtn.style.transform = 'none';
+            
+            showFunnyMessage();
+            
+            setTimeout(() => {
+                noBtn.style.transition = 'all 0.15s ease';
+            }, 10);
+        });
+
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const pos = getRandomPosition();
+            noBtn.style.transition = 'none';
+            noBtn.style.left = pos.x + 'px';
+            noBtn.style.top = pos.y + 'px';
+            noBtn.style.transform = 'none';
+            
+            showFunnyMessage();
+            
+            setTimeout(() => {
+                noBtn.style.transition = 'all 0.15s ease';
+            }, 10);
+        });
+
+        // Yes button click
+        document.getElementById('yesBtn').addEventListener('click', () => {
+            clearInterval(timerInterval);
+            clearInterval(penaltyInterval);
+            
+            // Add 15 seconds per penalty to Hyrox time
+            hyroxSeconds += penalties.length * 15;
+            
+            showCompletionPage();
+        });
+
+        function showCompletionPage() {
+            document.querySelector('.challenge-page').classList.remove('active');
+            document.querySelector('.completion-page').classList.add('active');
+            
+            const unit = exerciseConfig[challengeData.exercise].unit;
+            const text = `CONGRATS! You made the right choice.<br>You're going to do ${totalReps} ${unit} of ${challengeData.exercise} today!`;
+            document.getElementById('completionText').innerHTML = text;
+            
+            // Show final Hyrox time
+            const hours = Math.floor(hyroxSeconds / 3600);
+            const minutes = Math.floor((hyroxSeconds % 3600) / 60);
+            const seconds = hyroxSeconds % 60;
+            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            const shareText = `Your final Hyrox time: ${timeString}`;
+            document.getElementById('shareLink').textContent = shareText;
+        }
+
+        document.getElementById('challengeBackBtn').addEventListener('click', () => {
+            window.location.href = window.location.href.split('?')[0];
+        });
+
+        // Window resize handler
+        window.addEventListener('resize', () => {
+            if (document.querySelector('.challenge-page').classList.contains('active')) {
+                positionNoButton();
+            }
+        });
+    </script>
+</body>
+</html>
