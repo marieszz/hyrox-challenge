@@ -95,7 +95,7 @@
         /* Challenge Page Styles */
         .timer-display {
             text-align: center;
-            font-size: 1.5em;
+            font-size: 1.2em;
             margin-bottom: 20px;
             padding: 15px;
             border: 1px solid #FFED00;
@@ -126,6 +126,7 @@
             padding-top: 15px;
             border-top: 1px solid #FFED00;
             font-size: 1.1em;
+            display: none;
         }
 
         @keyframes slideIn {
@@ -160,17 +161,19 @@
             background: #FFED00;
             color: #000000;
             border: 1px solid #FFED00;
-            padding: 20px 50px;
+            padding: 15px 40px;
             font-size: 1.3em;
+            width: auto;
         }
 
         .btn-no {
             background: #000000;
             color: #FFED00;
             border: 1px solid #FFED00;
-            padding: 20px 50px;
+            padding: 15px 40px;
             font-size: 1.3em;
-            position: absolute;
+            position: fixed;
+            width: auto;
         }
 
         .funny-message {
@@ -200,7 +203,7 @@
         }
 
         .completion-message {
-            font-size: 2em;
+            font-size: 1.4em;
             margin: 40px 0;
             line-height: 1.6;
         }
@@ -271,15 +274,12 @@
     <div class="challenge-page">
         <div class="container">
             <div class="timer-display" id="hyroxTimer">
-                HYROX TIME: 00:50:00
+                YOUR NEXT HYROX RACE TIME: 00:50:00
             </div>
 
             <div class="penalty-board">
                 <h3>PENALTY BOARD</h3>
                 <div id="penaltyList"></div>
-                <div class="penalty-total" id="penaltyTotal">
-                    TOTAL: 0 <span id="exerciseUnit">REPS</span>
-                </div>
             </div>
 
             <div class="challenge-message" id="challengeText">
@@ -401,28 +401,45 @@
         function positionNoButton() {
             const yesBtn = document.getElementById('yesBtn');
             const noBtn = document.getElementById('noBtn');
-            const container = document.querySelector('.buttons-container');
             
             const yesRect = yesBtn.getBoundingClientRect();
-            const containerRect = container.getBoundingClientRect();
             
-            const leftPosition = yesRect.right - containerRect.left + 30;
+            // Position to the right of Yes button with gap
+            const leftPosition = yesRect.right + 30;
+            const topPosition = yesRect.top;
             
             noBtn.style.left = leftPosition + 'px';
-            noBtn.style.top = '50%';
-            noBtn.style.transform = 'translateY(-50%)';
+            noBtn.style.top = topPosition + 'px';
+            noBtn.style.transform = 'none';
         }
 
         function startTimers() {
-            // Increment reps every second
+            let cycleStep = 0;
+            
+            // Increment reps every second (silently)
             timerInterval = setInterval(() => {
                 elapsedSeconds++;
                 const increment = exerciseConfig[challengeData.exercise].increment;
                 totalReps += increment;
-                updatePenaltyTotal();
                 
-                // Hyrox time increases by 3 minutes per second
-                hyroxSeconds += 180;
+                // Update Hyrox time with random increments every 3 seconds
+                cycleStep++;
+                
+                if (cycleStep === 1) {
+                    // 1st second: +[1-10] seconds
+                    const randomSec = Math.floor(Math.random() * 10) + 1;
+                    hyroxSeconds += randomSec;
+                } else if (cycleStep === 2) {
+                    // 2nd second: +[1-3] minutes
+                    const randomMin = Math.floor(Math.random() * 3) + 1;
+                    hyroxSeconds += randomMin * 60;
+                } else if (cycleStep === 3) {
+                    // 3rd second: +[10-50] seconds
+                    const randomSec = Math.floor(Math.random() * 41) + 10;
+                    hyroxSeconds += randomSec;
+                    cycleStep = 0; // Reset cycle
+                }
+                
                 updateHyroxTimer();
             }, 1000);
 
@@ -438,7 +455,7 @@
             const seconds = hyroxSeconds % 60;
             
             const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            document.getElementById('hyroxTimer').textContent = `HYROX TIME: ${timeString}`;
+            document.getElementById('hyroxTimer').textContent = `YOUR NEXT HYROX RACE TIME: ${timeString}`;
         }
 
         function addRandomPenalty() {
@@ -480,14 +497,6 @@
             penaltyList.innerHTML = penalties.map(p => 
                 `<div class="penalty-item">${p.text}</div>`
             ).join('');
-            
-            updatePenaltyTotal();
-        }
-
-        function updatePenaltyTotal() {
-            const unit = exerciseConfig[challengeData.exercise].unit;
-            document.getElementById('penaltyTotal').innerHTML = 
-                `TOTAL: ${totalReps} <span id="exerciseUnit">${unit.toUpperCase()}</span>`;
         }
 
         // No button movement
@@ -495,15 +504,15 @@
         const container = document.querySelector('.buttons-container');
 
         function getRandomPosition() {
-            const containerRect = container.getBoundingClientRect();
             const btnWidth = noBtn.offsetWidth;
             const btnHeight = noBtn.offsetHeight;
             
-            const maxX = containerRect.width - btnWidth;
-            const maxY = containerRect.height - btnHeight;
+            const margin = 20; // Keep some margin from edges
+            const maxX = window.innerWidth - btnWidth - margin;
+            const maxY = window.innerHeight - btnHeight - margin;
             
-            const randomX = Math.random() * maxX;
-            const randomY = Math.random() * maxY;
+            const randomX = margin + Math.random() * (maxX - margin);
+            const randomY = margin + Math.random() * (maxY - margin);
             
             return { x: randomX, y: randomY };
         }
@@ -566,7 +575,24 @@
             document.querySelector('.completion-page').classList.add('active');
             
             const unit = exerciseConfig[challengeData.exercise].unit;
-            const text = `CONGRATS! You made the right choice.<br>You're going to do ${totalReps} ${unit} of ${challengeData.exercise} today!`;
+            
+            // Calculate penalty reps (total reps from penalties only)
+            let penaltyReps = 0;
+            penalties.forEach(p => {
+                if (p.type === 'reps') {
+                    penaltyReps += p.value;
+                }
+            });
+            
+            // Time-based reps (from elapsed seconds)
+            const timeBasedReps = elapsedSeconds * exerciseConfig[challengeData.exercise].increment;
+            
+            const text = `CONGRATS! You made the right choice.<br><br>` +
+                        `It took you ${elapsedSeconds} seconds to take the right decision,<br>` +
+                        `so you will do ${timeBasedReps} ${unit} of ${challengeData.exercise}<br>` +
+                        `+ ${penaltyReps} ${unit} from penalties,<br><br>` +
+                        `So a total of ${totalReps} ${unit}!`;
+            
             document.getElementById('completionText').innerHTML = text;
             
             // Show final Hyrox time
@@ -575,7 +601,7 @@
             const seconds = hyroxSeconds % 60;
             const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
-            const shareText = `Your final Hyrox time: ${timeString}`;
+            const shareText = `Your next Hyrox race time: ${timeString}`;
             document.getElementById('shareLink').textContent = shareText;
         }
 
