@@ -42,32 +42,93 @@
         }
 
         /* Home Page Styles */
+        .form-section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            background: #FFED00;
+            color: #000000;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-transform: uppercase;
+        }
+
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
             margin-bottom: 8px;
-            font-size: 1.1em;
+            font-size: 1em;
             text-transform: uppercase;
+            background: #FFED00;
+            color: #000000;
+            padding: 8px 15px;
+            width: fit-content;
         }
 
         input, select {
             width: 100%;
-            padding: 15px;
+            padding: 12px;
             font-size: 1.1em;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             font-weight: 600;
             background: #000000;
             color: #FFED00;
-            border: 1px solid #FFED00;
+            border: 1px solid #333333;
             border-radius: 0;
         }
 
         input::placeholder {
             color: #FFED00;
             opacity: 0.5;
+        }
+
+        .link-container {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #FFED00;
+        }
+
+        .link-container.active {
+            display: block;
+        }
+
+        .link-title {
+            background: #FFED00;
+            color: #000000;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            text-transform: uppercase;
+        }
+
+        .link-display {
+            background: #000000;
+            border: 1px solid #333333;
+            padding: 15px;
+            margin-bottom: 15px;
+            word-break: break-all;
+            font-size: 0.9em;
+            color: #FFED00;
+        }
+
+        .btn-copy {
+            background: #000000;
+            color: #FFED00;
+            border: 1px solid #FFED00;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .btn-copy:hover {
+            background: #FFED00;
+            color: #000000;
         }
 
         button {
@@ -233,33 +294,48 @@
             <h1>Challenge your Hyrox partner! 💪</h1>
             
             <form id="challengeForm">
-                <div class="form-group">
-                    <label for="recipient">Partner Name</label>
-                    <input type="text" id="recipient" required placeholder="Enter partner name">
+                <div class="form-section">
+                    <div class="section-title">Your Partner</div>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="recipient" required placeholder="Enter partner name">
+                    </div>
+                    <div class="form-group">
+                        <label>Age (optional)</label>
+                        <input type="number" id="age" placeholder="Enter age">
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="sender">Your Name</label>
-                    <input type="text" id="sender" required placeholder="Enter your name">
+                <div class="form-section">
+                    <div class="section-title">Your Name</div>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="sender" required placeholder="Enter your name">
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="age">Your partner age</label>
-                    <input type="number" id="age" placeholder="Enter age">
-                </div>
-
-                <div class="form-group">
-                    <label for="exercise">Choose your exercise</label>
-                    <select id="exercise" required>
-                        <option value="burpees">Burpees</option>
-                        <option value="push-ups">Push-ups</option>
-                        <option value="squats">Squats</option>
-                        <option value="plank">Plank</option>
-                    </select>
+                <div class="form-section">
+                    <div class="section-title">Challenge</div>
+                    <div class="form-group">
+                        <label>Choose your exercise</label>
+                        <select id="exercise" required>
+                            <option value="burpees">Burpees</option>
+                            <option value="push-ups">Push-ups</option>
+                            <option value="squats">Squats</option>
+                            <option value="plank">Plank</option>
+                        </select>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-primary">Send Challenge!</button>
             </form>
+
+            <div class="link-container" id="linkContainer">
+                <div class="link-title">Share this link with your partner</div>
+                <div class="link-display" id="generatedLink"></div>
+                <button class="btn-copy" id="copyBtn">Copy Link</button>
+                <button class="btn-primary" id="newChallengeBtn">Create Another Challenge</button>
+            </div>
         </div>
     </div>
 
@@ -373,7 +449,37 @@
             url.searchParams.set('age', challengeData.age);
             url.searchParams.set('exercise', challengeData.exercise);
             
-            window.location.href = url.toString();
+            // Show link container
+            const linkContainer = document.getElementById('linkContainer');
+            const generatedLink = document.getElementById('generatedLink');
+            generatedLink.textContent = url.toString();
+            linkContainer.classList.add('active');
+            
+            // Hide form
+            document.getElementById('challengeForm').style.display = 'none';
+            
+            // Scroll to link
+            linkContainer.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Copy link button
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const linkText = document.getElementById('generatedLink').textContent;
+            navigator.clipboard.writeText(linkText).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied! ✓';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        });
+
+        // New challenge button
+        document.getElementById('newChallengeBtn').addEventListener('click', () => {
+            document.getElementById('linkContainer').classList.remove('active');
+            document.getElementById('challengeForm').style.display = 'block';
+            document.getElementById('challengeForm').reset();
         });
 
         function loadChallengePage() {
