@@ -197,6 +197,43 @@
             line-height: 1.6;
         }
 
+        .quiz-container {
+            margin: 40px 0;
+        }
+
+        .quiz-question {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .quiz-option {
+            background: #000000;
+            color: #FFED00;
+            border: 1px solid #FFED00;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .quiz-option:hover {
+            background: #FFED00;
+            color: #000000;
+        }
+
         .buttons-container {
             position: relative;
             display: flex;
@@ -205,6 +242,7 @@
             margin: 40px 0;
             min-height: 100px;
             align-items: center;
+            display: none;
         }
 
         .btn-yes {
@@ -297,7 +335,7 @@
                         <input type="text" id="recipient" required placeholder="Name">
                     </div>
                     <div class="form-group">
-                        <input type="number" id="age" placeholder="Age (optional)">
+                        <input type="number" id="age" placeholder="Age">
                     </div>
                 </div>
 
@@ -311,7 +349,16 @@
                 <div class="form-section">
                     <div class="section-title">Challenge</div>
                     <div class="form-group">
+                        <select id="category" required>
+                            <option value="">Select category</option>
+                            <option value="women">Women</option>
+                            <option value="men">Men</option>
+                            <option value="mixed">Mixed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <select id="exercise" required>
+                            <option value="">Select exercise</option>
                             <option value="burpees">Burpees</option>
                             <option value="push-ups">Push-ups</option>
                             <option value="squats">Squats</option>
@@ -353,6 +400,18 @@
                 Are you ready to do it?
             </div>
 
+            <div class="quiz-container">
+                <div class="quiz-question" id="quizQuestion">
+                    If you and your partner alternate every 25m on the sandbag lunges station, how many total switches happen?
+                </div>
+                <div class="quiz-options">
+                    <button class="quiz-option" data-answer="2">2</button>
+                    <button class="quiz-option" data-answer="3">3</button>
+                    <button class="quiz-option" data-answer="4">4</button>
+                    <button class="quiz-option" data-answer="6">6</button>
+                </div>
+            </div>
+
             <div class="buttons-container">
                 <button class="btn-yes" id="yesBtn">YES LET'S GO!</button>
                 <button class="btn-no" id="noBtn">NAH THANKS</button>
@@ -383,6 +442,7 @@
             recipient: '',
             sender: '',
             age: 0,
+            category: '',
             exercise: 'burpees'
         };
 
@@ -418,6 +478,7 @@
                 challengeData.recipient = urlParams.get('recipient');
                 challengeData.sender = urlParams.get('sender');
                 challengeData.age = parseInt(urlParams.get('age')) || 0;
+                challengeData.category = urlParams.get('category');
                 challengeData.exercise = urlParams.get('exercise');
                 
                 loadChallengePage();
@@ -430,12 +491,14 @@
             challengeData.recipient = document.getElementById('recipient').value;
             challengeData.sender = document.getElementById('sender').value;
             challengeData.age = parseInt(document.getElementById('age').value) || 0;
+            challengeData.category = document.getElementById('category').value;
             challengeData.exercise = document.getElementById('exercise').value;
             
             const url = new URL(window.location.href.split('?')[0]);
             url.searchParams.set('recipient', challengeData.recipient);
             url.searchParams.set('sender', challengeData.sender);
             url.searchParams.set('age', challengeData.age);
+            url.searchParams.set('category', challengeData.category);
             url.searchParams.set('exercise', challengeData.exercise);
             
             const linkContainer = document.getElementById('linkContainer');
@@ -472,32 +535,18 @@
             const text = `Hey ${challengeData.recipient}!<br>Your partner ${challengeData.sender} is sending you a ${challengeData.exercise} challenge 💪<br>Are you ready to do it?`;
             document.getElementById('challengeText').innerHTML = text;
             
-            setTimeout(() => {
-                positionNoButton();
-            }, 100);
-            
             startTimers();
         }
 
         function positionNoButton() {
-            const yesBtn = document.getElementById('yesBtn');
-            const noBtn = document.getElementById('noBtn');
-            
-            if (!yesBtn || !noBtn) return;
-            
-            const yesRect = yesBtn.getBoundingClientRect();
-            const leftPosition = yesRect.right + 28;
-            const topPosition = yesRect.top;
-            
-            noBtn.style.left = leftPosition + 'px';
-            noBtn.style.top = topPosition + 'px';
-            noBtn.style.transform = 'none';
+            // No longer needed
         }
 
         function startTimers() {
             timerInterval = setInterval(() => {
                 elapsedSeconds++;
-                const increment = exerciseConfig[challengeData.exercise].increment;
+                // Double the increment per second
+                const increment = exerciseConfig[challengeData.exercise].increment * 2;
                 totalReps += increment;
                 
                 cycleStep++;
@@ -517,9 +566,10 @@
                 updateHyroxTimer();
             }, 1000);
 
+            // Add penalties every 2 seconds instead of 5
             penaltyInterval = setInterval(() => {
                 addRandomPenalty();
-            }, 5000);
+            }, 2000);
         }
 
         function updateHyroxTimer() {
@@ -609,48 +659,34 @@
             }, 3000);
         }
 
-        if (noBtn) {
-            noBtn.addEventListener('mouseenter', () => {
-                const pos = getRandomPosition();
-                noBtn.style.transition = 'none';
-                noBtn.style.left = pos.x + 'px';
-                noBtn.style.top = pos.y + 'px';
-                noBtn.style.transform = 'none';
+        // Quiz answer handling
+        document.querySelectorAll('.quiz-option').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const selectedAnswer = e.target.getAttribute('data-answer');
+                const correctAnswer = '4';
                 
-                showFunnyMessage();
-                
-                setTimeout(() => {
-                    noBtn.style.transition = 'all 0.15s ease';
-                }, 10);
+                if (selectedAnswer === correctAnswer) {
+                    // Stop timers
+                    clearInterval(timerInterval);
+                    clearInterval(penaltyInterval);
+                    
+                    // Add 15 seconds per penalty to Hyrox time
+                    hyroxSeconds += penalties.length * 15;
+                    
+                    showCompletionPage();
+                } else {
+                    // Wrong answer - show message
+                    const messageEl = document.getElementById('funnyMessage');
+                    messageEl.textContent = 'Wrong answer! Try again...';
+                    messageEl.style.color = '#FF0000';
+                    
+                    setTimeout(() => {
+                        messageEl.textContent = '';
+                        messageEl.style.color = '#FFED00';
+                    }, 2000);
+                }
             });
-
-            noBtn.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                const pos = getRandomPosition();
-                noBtn.style.transition = 'none';
-                noBtn.style.left = pos.x + 'px';
-                noBtn.style.top = pos.y + 'px';
-                noBtn.style.transform = 'none';
-                
-                showFunnyMessage();
-                
-                setTimeout(() => {
-                    noBtn.style.transition = 'all 0.15s ease';
-                }, 10);
-            });
-        }
-
-        const yesBtn = document.getElementById('yesBtn');
-        if (yesBtn) {
-            yesBtn.addEventListener('click', () => {
-                clearInterval(timerInterval);
-                clearInterval(penaltyInterval);
-                
-                hyroxSeconds += penalties.length * 15;
-                
-                showCompletionPage();
-            });
-        }
+        });
 
         function showCompletionPage() {
             document.querySelector('.challenge-page').classList.remove('active');
@@ -678,12 +714,6 @@
 
         document.getElementById('challengeBackBtn').addEventListener('click', () => {
             window.location.href = window.location.pathname;
-        });
-
-        window.addEventListener('resize', () => {
-            if (document.querySelector('.challenge-page').classList.contains('active')) {
-                positionNoButton();
-            }
         });
     </script>
 </body>
