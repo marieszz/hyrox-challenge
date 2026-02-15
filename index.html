@@ -382,6 +382,17 @@
     <!-- CHALLENGE PAGE -->
     <div class="challenge-page">
         <div class="container">
+            <div class="quiz-container">
+                <div class="challenge-message" id="challengeText">
+                    Answer this question and discover the [EXERCISE] challenge your partner [SENDER] sent you
+                </div>
+                <div class="quiz-question" id="quizQuestion">
+                    Loading question...
+                </div>
+                <div class="quiz-options" id="quizOptions">
+                </div>
+            </div>
+
             <div class="timer-display" id="hyroxTimer">
                 YOUR NEXT HYROX RACE TIME: 00:50:00
             </div>
@@ -392,29 +403,6 @@
                 <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #FFED00;">
                     PENALTY REPS: <span id="penaltyCounter">0</span>
                 </div>
-            </div>
-
-            <div class="challenge-message" id="challengeText">
-                Hey [NAME]!<br>
-                Your partner [SENDER] is sending you a [EXERCISE] challenge 💪<br>
-                Are you ready to do it?
-            </div>
-
-            <div class="quiz-container">
-                <div class="quiz-question" id="quizQuestion">
-                    If you and your partner alternate every 25m on the sandbag lunges station, how many total switches happen?
-                </div>
-                <div class="quiz-options">
-                    <button class="quiz-option" data-answer="2">2</button>
-                    <button class="quiz-option" data-answer="3">3</button>
-                    <button class="quiz-option" data-answer="4">4</button>
-                    <button class="quiz-option" data-answer="6">6</button>
-                </div>
-            </div>
-
-            <div class="buttons-container">
-                <button class="btn-yes" id="yesBtn">YES LET'S GO!</button>
-                <button class="btn-no" id="noBtn">NAH THANKS</button>
             </div>
 
             <div class="funny-message" id="funnyMessage"></div>
@@ -470,6 +458,106 @@
             'squats': { increment: 5, unit: 'reps' },
             'plank': { increment: 10, unit: 'sec' }
         };
+
+        const quizQuestions = [
+            {
+                question: "You need to complete 1000m on the SkiErg with a partner, split into 4 equal parts. How many meters does each athlete complete in total?",
+                options: ["250m", "500m", "750m"],
+                correct: "500m"
+            },
+            {
+                question: "The 1000m on the RowErg are split into 4 alternating efforts. How many meters does each athlete row per round?",
+                options: ["125m", "250m", "500m"],
+                correct: "250m"
+            },
+            {
+                question: "In the {{divisionLabel}} division, how much weight is used for the sled push?",
+                options: {
+                    women: ["78kg", "102kg", "125kg"],
+                    men: ["152kg", "202kg", "227kg"],
+                    mixed: ["152kg", "202kg", "227kg"]
+                },
+                correct: {
+                    women: "102kg",
+                    men: "152kg",
+                    mixed: "152kg"
+                }
+            },
+            {
+                question: "In the {{divisionLabel}} division, how much weight is used for the sled pull?",
+                options: {
+                    women: ["78kg", "102kg", "125kg"],
+                    men: ["103kg", "153kg", "202kg"],
+                    mixed: ["103kg", "153kg", "202kg"]
+                },
+                correct: {
+                    women: "78kg",
+                    men: "153kg",
+                    mixed: "153kg"
+                }
+            },
+            {
+                question: "The burpee broad jumps cover 80m total. If two athletes split the work evenly, how many meters does each athlete complete?",
+                options: ["20m", "40m", "60m"],
+                correct: "40m"
+            },
+            {
+                question: "In the {{divisionLabel}} division, what is the farmer's carry weight?",
+                options: {
+                    women: ["2×12kg", "2×16kg", "2×20kg"],
+                    men: ["2×24kg", "2×28kg", "2×32kg"],
+                    mixed: ["2×24kg", "2×28kg", "2×32kg"]
+                },
+                correct: {
+                    women: "2×16kg",
+                    men: "2×32kg",
+                    mixed: "2×32kg"
+                }
+            },
+            {
+                question: "The farmer's carry distance is 200m. If it is split into 4 equal parts, how long is each carry?",
+                options: ["25m", "50m", "100m"],
+                correct: "50m"
+            },
+            {
+                question: "In the {{divisionLabel}} division, what is the sandbag weight?",
+                options: {
+                    women: ["6kg", "8kg", "10kg"],
+                    men: ["10kg", "20kg", "30kg"],
+                    mixed: ["10kg", "20kg", "30kg"]
+                },
+                correct: {
+                    women: "10kg",
+                    men: "20kg",
+                    mixed: "20kg"
+                }
+            },
+            {
+                question: "The sandbag lunges cover 100m total. If split into 4 equal parts, how many meters does each effort represent?",
+                options: ["20m", "25m", "50m"],
+                correct: "25m"
+            },
+            {
+                question: "In the {{divisionLabel}} division, what is the wall ball weight?",
+                options: {
+                    women: ["4kg", "6kg", "9kg"],
+                    men: ["6kg", "9kg", "12kg"],
+                    mixed: ["6kg", "9kg", "12kg"]
+                },
+                correct: {
+                    women: "4kg",
+                    men: "6kg",
+                    mixed: "6kg"
+                }
+            },
+            {
+                question: "If you perform wall balls in sets of 10 and need to reach 50 reps total, how many sets are required?",
+                options: ["4", "5", "10"],
+                correct: "5"
+            }
+        ];
+
+        let currentQuestion = null;
 
         window.addEventListener('load', () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -532,10 +620,76 @@
             document.querySelector('.home-page').classList.remove('active');
             document.querySelector('.challenge-page').classList.add('active');
             
-            const text = `Hey ${challengeData.recipient}!<br>Your partner ${challengeData.sender} is sending you a ${challengeData.exercise} challenge 💪<br>Are you ready to do it?`;
+            const text = `Answer this question and discover the ${challengeData.exercise} challenge your partner ${challengeData.sender} sent you`;
             document.getElementById('challengeText').innerHTML = text;
             
+            loadRandomQuestion();
             startTimers();
+        }
+
+        function loadRandomQuestion() {
+            // Select random question
+            const randomIndex = Math.floor(Math.random() * quizQuestions.length);
+            currentQuestion = quizQuestions[randomIndex];
+            
+            // Get division label
+            const divisionLabel = challengeData.category || 'mixed';
+            
+            // Set question text
+            let questionText = currentQuestion.question.replace('{{divisionLabel}}', divisionLabel);
+            document.getElementById('quizQuestion').textContent = questionText;
+            
+            // Get options based on category if needed
+            let options, correctAnswer;
+            if (typeof currentQuestion.options === 'object' && !Array.isArray(currentQuestion.options)) {
+                options = currentQuestion.options[divisionLabel];
+                correctAnswer = currentQuestion.correct[divisionLabel];
+            } else {
+                options = currentQuestion.options;
+                correctAnswer = currentQuestion.correct;
+            }
+            
+            // Create option buttons
+            const optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'quiz-option';
+                button.textContent = option;
+                button.setAttribute('data-answer', option);
+                button.setAttribute('data-correct', correctAnswer);
+                
+                button.addEventListener('click', handleQuizAnswer);
+                
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function handleQuizAnswer(e) {
+            const selectedAnswer = e.target.getAttribute('data-answer');
+            const correctAnswer = e.target.getAttribute('data-correct');
+            
+            if (selectedAnswer === correctAnswer) {
+                // Stop timers
+                clearInterval(timerInterval);
+                clearInterval(penaltyInterval);
+                
+                // Add 15 seconds per penalty to Hyrox time
+                hyroxSeconds += penalties.length * 15;
+                
+                showCompletionPage();
+            } else {
+                // Wrong answer - show message
+                const messageEl = document.getElementById('funnyMessage');
+                messageEl.textContent = 'Wrong answer! Try again...';
+                messageEl.style.color = '#FF0000';
+                
+                setTimeout(() => {
+                    messageEl.textContent = '';
+                    messageEl.style.color = '#FFED00';
+                }, 2000);
+            }
         }
 
         function positionNoButton() {
@@ -545,9 +699,9 @@
         function startTimers() {
             timerInterval = setInterval(() => {
                 elapsedSeconds++;
-                // Double the increment per second
-                const increment = exerciseConfig[challengeData.exercise].increment * 2;
-                totalReps += increment;
+                // Double the increment for penalties, but track time-based reps separately
+                const doubledIncrement = exerciseConfig[challengeData.exercise].increment * 2;
+                totalReps += doubledIncrement;
                 
                 cycleStep++;
                 
@@ -630,86 +784,30 @@
             document.getElementById('penaltyCounter').textContent = `${penaltyReps} ${unit}`;
         }
 
-        const noBtn = document.getElementById('noBtn');
-
-        function getRandomPosition() {
-            const btnWidth = noBtn.offsetWidth;
-            const btnHeight = noBtn.offsetHeight;
-            
-            const margin = 20;
-            const maxX = window.innerWidth - btnWidth - margin;
-            const maxY = window.innerHeight - btnHeight - margin;
-            
-            const randomX = margin + Math.random() * (maxX - margin);
-            const randomY = margin + Math.random() * (maxY - margin);
-            
-            return { x: randomX, y: randomY };
-        }
-
-        function showFunnyMessage() {
-            const message = funnyMessages[Math.floor(Math.random() * funnyMessages.length)]
-                .replace('[SENDER]', challengeData.sender);
-            
-            const messageEl = document.getElementById('funnyMessage');
-            messageEl.textContent = message;
-            
-            clearTimeout(messageTimeout);
-            messageTimeout = setTimeout(() => {
-                messageEl.textContent = '';
-            }, 3000);
-        }
-
-        // Quiz answer handling
-        document.querySelectorAll('.quiz-option').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const selectedAnswer = e.target.getAttribute('data-answer');
-                const correctAnswer = '4';
-                
-                if (selectedAnswer === correctAnswer) {
-                    // Stop timers
-                    clearInterval(timerInterval);
-                    clearInterval(penaltyInterval);
-                    
-                    // Add 15 seconds per penalty to Hyrox time
-                    hyroxSeconds += penalties.length * 15;
-                    
-                    showCompletionPage();
-                } else {
-                    // Wrong answer - show message
-                    const messageEl = document.getElementById('funnyMessage');
-                    messageEl.textContent = 'Wrong answer! Try again...';
-                    messageEl.style.color = '#FF0000';
-                    
-                    setTimeout(() => {
-                        messageEl.textContent = '';
-                        messageEl.style.color = '#FFED00';
-                    }, 2000);
-                }
-            });
-        });
-
         function showCompletionPage() {
             document.querySelector('.challenge-page').classList.remove('active');
             document.querySelector('.completion-page').classList.add('active');
             
             const unit = exerciseConfig[challengeData.exercise].unit;
+            
+            // Calculate time-based reps using the ACTUAL elapsed seconds (not doubled)
             const timeBasedReps = elapsedSeconds * exerciseConfig[challengeData.exercise].increment;
             
-            const text = `CONGRATS! You made the right choice.<br><br>` +
-                        `It took you ${elapsedSeconds} seconds to take the right decision,<br>` +
+            const text = `CONGRATS! It took you ${elapsedSeconds} seconds to find the right answer,<br>` +
                         `so you will do ${timeBasedReps} ${unit} of ${challengeData.exercise}<br>` +
                         `+ ${penaltyReps} ${unit} from penalties,<br><br>` +
-                        `So a total of ${totalReps} ${unit}!`;
+                        `So a total of ${totalReps} ${unit}! Good luck!`;
             
             document.getElementById('completionText').innerHTML = text;
             
+            // Show final Hyrox time with prediction text
             const hours = Math.floor(hyroxSeconds / 3600);
             const minutes = Math.floor((hyroxSeconds % 3600) / 60);
             const seconds = hyroxSeconds % 60;
             const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
-            const shareText = `Your next Hyrox race time: ${timeString}`;
-            document.getElementById('shareLink').textContent = shareText;
+            const shareText = `Based on your results, we predict for you and your partner:<br>Your next Hyrox race time: ${timeString}`;
+            document.getElementById('shareLink').innerHTML = shareText;
         }
 
         document.getElementById('challengeBackBtn').addEventListener('click', () => {
