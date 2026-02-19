@@ -321,6 +321,33 @@
             }
         }
     </style>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5G0PG5JLYX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      
+      // Configuration initiale - SANS envoi automatique de page_view
+      gtag('config', 'G-5G0PG5JLYX', {
+        'send_page_view': false  // Important pour SPA !
+      });
+      
+      // Fonction pour tracker les pages manuellement
+      function trackPage(pageName, pageTitle) {
+        gtag('event', 'page_view', {
+          page_title: pageTitle,
+          page_location: window.location.href,
+          page_path: '/' + pageName
+        });
+      }
+      
+      // Fonction pour tracker les événements personnalisés
+      function trackEvent(eventName, params = {}) {
+        gtag('event', eventName, params);
+      }
+    </script>
 </head>
 <body>
     <!-- HOME PAGE -->
