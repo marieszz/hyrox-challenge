@@ -636,16 +636,18 @@
             linkContainer.scrollIntoView({ behavior: 'smooth' });
         });
 
-        document.addEventListener('click', (e) => {
+        document.body.addEventListener('click', (e) => {
             if (e.target && e.target.id === 'copyBtn') {
+                e.preventDefault();
                 const linkText = document.getElementById('generatedLink').textContent;
                 navigator.clipboard.writeText(linkText).then(() => {
-                    const btn = e.target;
-                    const originalText = btn.textContent;
-                    btn.textContent = 'Copied! ✓';
+                    e.target.textContent = 'Copied! ✓';
                     setTimeout(() => {
-                        btn.textContent = originalText;
+                        e.target.textContent = 'Copy Link';
                     }, 2000);
+                }).catch(err => {
+                    console.error('Copy failed:', err);
+                    alert('Failed to copy link');
                 });
             }
         });
