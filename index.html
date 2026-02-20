@@ -843,10 +843,6 @@
             // Calculate time-based reps using the ACTUAL elapsed seconds (not doubled)
             const timeBasedReps = elapsedSeconds * exerciseConfig[challengeData.exercise].increment;
             
-            const text = `CONGRATS! It took you ${elapsedSeconds} seconds to find the right answer,<br>` +
-                        `so you will do ${timeBasedReps} ${unit} of ${challengeData.exercise}<br>` +
-                        `+ ${penaltyReps} ${unit} from penalties,<br><br>` +
-                        `So a total of ${totalReps} ${unit}! Good luck!`;
             const text = `<span class="highlight">CONGRATS!</span> It took you ${elapsedSeconds} seconds to find the right answer, ` +
                         `so you will do <span class="highlight">${timeBasedReps} ${unit}</span> of ${challengeData.exercise} ` +
                         `+ <span class="highlight">${penaltyReps} ${unit}</span> from penalties, ` +
