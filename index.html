@@ -458,7 +458,6 @@
             <div class="completion-message" id="completionText">
             </div>
             
-            <p class="share-link">Based on your results, we predict your next Hyrox race time for you and your partner:</p>
             <div class="share-link" id="shareLink"></div>
 
             <button class="btn-primary" id="challengeBackBtn">
@@ -866,7 +865,7 @@
             const seconds = hyroxSeconds % 60;
             const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
-            const shareText = `${timeString}`;
+            const shareText = `Based on your results, we predict your next Hyrox race time for you and your partner:<br> <span class="time-predicted">${timeString}`</span>;
             document.getElementById('shareLink').innerHTML = shareText;
         }
 
