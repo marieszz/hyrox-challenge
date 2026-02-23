@@ -46,7 +46,7 @@
 
         /* Home Page Styles */
         .form-section {
-            margin-bottom: 32px;
+            margin-bottom: 24px;
         }
 
         .section-title {
@@ -79,7 +79,7 @@
             border-radius: 0;
         }
 
-        input::placeholder {
+        input::placeholder, select::placeholder {
             color: #FFF;
             opacity: 0.5;
         }
@@ -99,11 +99,16 @@
             color: #000000;
             border: 1px solid #FFED00;
             width: 100%;
-            margin-top: 28px;
         }
 
         .btn-primary:hover {
             opacity: 0.9;
+        }
+
+        @media (max-width: 600px) {
+            .btn-primary {
+                margin-top: 16px;
+            }
         }
 
         .link-container {
@@ -304,15 +309,14 @@
         .completion-message {
             font-size: 20px;
             margin: 40px 0;
-            line-height: 1.4;
+            line-height: 1.8;
             color: #FFFFFF;
         }
 
         .highlight {
             background: #FFED00;
             color: #000000;
-            padding: 0px 12px 4px 4px;
-            display: inline-block;
+            padding: 0px 12px 8px 4px;
         }
 
         .share-link {
@@ -320,8 +324,8 @@
             border: 1px solid #FFED00;
             padding: 12px;
             margin: 28px 0;
-            word-break: break-all;
             font-size: 14px;
+            line-height: 1.6;
         }
 
         @media (max-width: 600px) {
@@ -342,8 +346,7 @@
         .time-predicted {
             background: #FFED00;
             color: #000000;
-            padding: 4px 8px;
-            display: inline-block;
+            padding: 0 12px 8px 4px;
             font-size: 24px;
         }
     </style>
