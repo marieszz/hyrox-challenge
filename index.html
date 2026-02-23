@@ -79,8 +79,19 @@
             border-radius: 0;
         }
 
-        input::placeholder, select::placeholder {
+        input::placeholder {
             color: #FFF;
+            opacity: 0.5;
+        }
+
+        select option {
+            color: #FFFFFF;
+            background: #000000;
+        }
+        
+        /* Pour les options placeholder */
+        select option[value=""] {
+            color: #FFFFFF;
             opacity: 0.5;
         }
 
